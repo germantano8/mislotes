@@ -18,4 +18,4 @@ frontend/.angular/
 # Base de datos y backups
 backups/
 *.dump
-*.sql
+backups/*.sql
