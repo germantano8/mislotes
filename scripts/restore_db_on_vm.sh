@@ -20,7 +20,7 @@ fi
 DB_USER=${DB_USER:-postgres}
 DB_NAME=${DB_NAME:-mislotes}
 
-echo "⏳ Restaurando base de datos en el contenedor Docker 'campo_db'..."
+echo "⏳ Restaurando base de datos en el contenedor Docker '${APP_NAME:-mislotes}_db'..."
 docker compose exec -T db psql -U "$DB_USER" -d "$DB_NAME" < "$BACKUP_FILE"
 
 echo "✅ Restauración completada con éxito."

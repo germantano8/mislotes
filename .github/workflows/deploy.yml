@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - main
+      - dev
 
 jobs:
   deploy:
-    name: Desplegar en VM con Docker Compose
+    name: Desplegar (${{ github.ref_name }}) en VM con Docker Compose
     runs-on: ubuntu-latest
 
     steps:
@@ -20,12 +21,19 @@ jobs:
           port: 22
           script: |
             set -e
-            echo "📂 Entrando al directorio del proyecto..."
-            cd ${{ secrets.VM_PROJECT_PATH }}
+            BRANCH="${{ github.ref_name }}"
+            if [ "$BRANCH" = "dev" ]; then
+              TARGET_DIR="${{ secrets.VM_PROJECT_PATH }}-dev"
+            else
+              TARGET_DIR="${{ secrets.VM_PROJECT_PATH }}"
+            fi
 
-            echo "⬇️ Descargando últimos cambios de main..."
-            git fetch origin main
-            git reset --hard origin/main
+            echo "📂 Entrando al directorio del proyecto ($TARGET_DIR) para la rama $BRANCH..."
+            cd "$TARGET_DIR"
+
+            echo "⬇️ Descargando últimos cambios de $BRANCH..."
+            git fetch origin "$BRANCH"
+            git reset --hard "origin/$BRANCH"
 
             echo "🐳 Reconstruyendo y levantando contenedores..."
             docker compose up -d --build --remove-orphans
@@ -33,5 +41,5 @@ jobs:
             echo "🧹 Limpiando imágenes antiguas sin uso..."
             docker image prune -f
 
-            echo "✅ ¡Despliegue completado con éxito!"
+            echo "✅ ¡Despliegue de $BRANCH completado con éxito!"
 
