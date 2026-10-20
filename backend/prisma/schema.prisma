@@ -59,6 +59,7 @@ model Lote {
   propietarioId     BigInt?  @map("propietario_id")
   modalidadAlquiler String?  @map("modalidad_alquiler") @db.VarChar(20) // PORCENTAJE, QUINTALES_FIJOS
   valorAlquiler     Decimal? @map("valor_alquiler") @db.Decimal(10, 2)
+  observaciones     String?  @db.Text
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   propietario Tercero?  @relation(fields: [propietarioId], references: [id], onDelete: SetNull, map: "fk_lotes_propietario")

@@ -1,13 +1,14 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { AgroApiService } from '../../services/agro-api.service';
 import { Lote, Tercero, Trabajo } from '../../models/agro.models';
 
 @Component({
   selector: 'app-lotes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="space-y-6 animate-fade-in">
       <!-- Encabezado de Página -->
@@ -181,6 +182,14 @@ import { Lote, Tercero, Trabajo } from '../../models/agro.models';
                   }
                 </div>
               }
+
+              <!-- Observaciones / Anotaciones del Lote -->
+              @if (lote.observaciones) {
+                <div class="mt-3 p-3 rounded-xl bg-amber-50/60 border border-amber-200/60 text-xs text-slate-700">
+                  <span class="text-amber-800 block text-[10px] uppercase font-bold tracking-wider mb-0.5">📝 Anotaciones:</span>
+                  <p class="whitespace-pre-line leading-relaxed">{{ lote.observaciones }}</p>
+                </div>
+              }
             </div>
 
             <!-- Botones y Acciones -->
@@ -189,6 +198,13 @@ import { Lote, Tercero, Trabajo } from '../../models/agro.models';
                 Historial: <strong>{{ lote._count?.trabajos || 0 }}</strong> labores
               </span>
               <div class="flex items-center gap-2">
+                <button
+                  (click)="abrirModalEditar(lote)"
+                  class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
+                  title="Editar lote o anotaciones"
+                >
+                  ✏️ Editar
+                </button>
                 <button
                   (click)="verDetalle(lote.id)"
                   class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-agro-50 text-agro-700 hover:bg-agro-100 transition-colors"
@@ -213,6 +229,13 @@ import { Lote, Tercero, Trabajo } from '../../models/agro.models';
               </div>
               <button (click)="loteSeleccionado.set(null)" class="text-slate-400 hover:text-slate-600 text-xl font-bold p-1">✕</button>
             </div>
+
+            @if (loteSeleccionado()?.observaciones) {
+              <div class="mt-4 p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 text-xs text-slate-700">
+                <span class="text-amber-800 block text-[10px] uppercase font-bold tracking-wider mb-1">📝 Observaciones / Anotaciones del Lote</span>
+                <p class="whitespace-pre-line leading-relaxed">{{ loteSeleccionado()?.observaciones }}</p>
+              </div>
+            }
 
             <div class="mt-5">
               <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3">Historial Cronológico de Labores</h4>
@@ -273,12 +296,12 @@ import { Lote, Tercero, Trabajo } from '../../models/agro.models';
         </div>
       }
 
-      <!-- Modal Nuevo Lote -->
+      <!-- Modal Nuevo / Editar Lote -->
       @if (mostrarModalNuevo()) {
         <div class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl">
+          <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 class="text-lg font-bold text-slate-900">Registrar Nuevo Lote</h3>
+              <h3 class="text-lg font-bold text-slate-900">{{ loteEditandoId() ? 'Editar Lote' : 'Registrar Nuevo Lote' }}</h3>
               <button (click)="mostrarModalNuevo.set(false)" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
             </div>
 
@@ -323,15 +346,20 @@ import { Lote, Tercero, Trabajo } from '../../models/agro.models';
 
               @if (nuevoLote.regimen !== 'PROPIO') {
                 <div>
-                  <label class="block text-xs font-semibold text-slate-600 mb-1">Dueño / Cliente Asociado</label>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="block text-xs font-semibold text-slate-600">Cliente Asociado</label>
+                    <a routerLink="/clientes" (click)="mostrarModalNuevo.set(false)" class="text-xs font-semibold text-agro-600 hover:underline">
+                      + Administrar clientes
+                    </a>
+                  </div>
                   <select
                     [(ngModel)]="nuevoLote.propietarioId"
                     name="propietarioId"
                     class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-agro-500"
                   >
-                    <option [value]="null">Selecciona un tercero...</option>
+                    <option [ngValue]="null">Selecciona un cliente...</option>
                     @for (t of terceros(); track t.id) {
-                      <option [value]="t.id">{{ t.nombre }} ({{ t.tipo }})</option>
+                      <option [ngValue]="t.id">{{ t.nombre }}</option>
                     }
                   </select>
                 </div>
@@ -366,6 +394,17 @@ import { Lote, Tercero, Trabajo } from '../../models/agro.models';
                 </div>
               }
 
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Observaciones / Anotaciones</label>
+                <textarea
+                  [(ngModel)]="nuevoLote.observaciones"
+                  name="observaciones"
+                  rows="3"
+                  placeholder="Ej. Acceso por tranquera norte, bajo inundable en sector sur, historial de malezas..."
+                  class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-agro-500"
+                ></textarea>
+              </div>
+
               <div class="mt-6 flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
                 <button
                   type="button"
@@ -378,7 +417,7 @@ import { Lote, Tercero, Trabajo } from '../../models/agro.models';
                   type="submit"
                   class="px-4 py-2 bg-agro-600 hover:bg-agro-700 text-white rounded-xl text-xs font-semibold shadow"
                 >
-                  Guardar Lote
+                  {{ loteEditandoId() ? 'Guardar Cambios' : 'Guardar Lote' }}
                 </button>
               </div>
             </form>
@@ -396,6 +435,7 @@ export class LotesComponent implements OnInit {
   filtroActual = signal<string>('');
   loteSeleccionado = signal<Lote | null>(null);
   mostrarModalNuevo = signal<boolean>(false);
+  loteEditandoId = signal<string | null>(null);
   cargando = signal<boolean>(true);
   errorMensaje = signal<string>('');
 
@@ -416,7 +456,8 @@ export class LotesComponent implements OnInit {
     if (q) {
       items = items.filter((l) =>
         (l.nombre && l.nombre.toLowerCase().includes(q)) ||
-        (l.propietario?.nombre && l.propietario.nombre.toLowerCase().includes(q))
+        (l.propietario?.nombre && l.propietario.nombre.toLowerCase().includes(q)) ||
+        (l.observaciones && l.observaciones.toLowerCase().includes(q))
       );
     }
     if (dDesde) {
@@ -446,6 +487,7 @@ export class LotesComponent implements OnInit {
     propietarioId: null,
     modalidadAlquiler: 'PORCENTAJE',
     valorAlquiler: null,
+    observaciones: '',
   };
 
   ngOnInit(): void {
@@ -488,6 +530,7 @@ export class LotesComponent implements OnInit {
   }
 
   abrirModalNuevo(): void {
+    this.loteEditandoId.set(null);
     this.nuevoLote = {
       nombre: '',
       hectareas: null,
@@ -495,18 +538,52 @@ export class LotesComponent implements OnInit {
       propietarioId: null,
       modalidadAlquiler: 'PORCENTAJE',
       valorAlquiler: null,
+      observaciones: '',
+    };
+    this.mostrarModalNuevo.set(true);
+  }
+
+  abrirModalEditar(lote: Lote): void {
+    this.loteEditandoId.set(lote.id);
+    this.nuevoLote = {
+      nombre: lote.nombre,
+      hectareas: lote.hectareas,
+      regimen: lote.regimen,
+      propietarioId: lote.propietarioId || null,
+      modalidadAlquiler: lote.modalidadAlquiler || 'PORCENTAJE',
+      valorAlquiler: lote.valorAlquiler || null,
+      observaciones: lote.observaciones || '',
     };
     this.mostrarModalNuevo.set(true);
   }
 
   guardarNuevoLote(): void {
-    this.api.createLote(this.nuevoLote).subscribe({
-      next: () => {
-        this.mostrarModalNuevo.set(false);
-        this.cargarLotes();
-      },
-      error: (e) => alert('Error al crear lote: ' + (e.error?.error || e.message)),
-    });
+    const payload = {
+      ...this.nuevoLote,
+      propietarioId: this.nuevoLote.regimen === 'PROPIO' ? null : this.nuevoLote.propietarioId,
+      modalidadAlquiler: this.nuevoLote.regimen === 'ALQUILADO' ? this.nuevoLote.modalidadAlquiler : null,
+      valorAlquiler: this.nuevoLote.regimen === 'ALQUILADO' ? this.nuevoLote.valorAlquiler : null,
+    };
+
+    const idEdicion = this.loteEditandoId();
+    if (idEdicion) {
+      this.api.updateLote(idEdicion, payload).subscribe({
+        next: () => {
+          this.mostrarModalNuevo.set(false);
+          this.loteEditandoId.set(null);
+          this.cargarLotes();
+        },
+        error: (e) => alert('Error al actualizar lote: ' + (e.error?.error || e.message)),
+      });
+    } else {
+      this.api.createLote(payload).subscribe({
+        next: () => {
+          this.mostrarModalNuevo.set(false);
+          this.cargarLotes();
+        },
+        error: (e) => alert('Error al crear lote: ' + (e.error?.error || e.message)),
+      });
+    }
   }
 }
 
