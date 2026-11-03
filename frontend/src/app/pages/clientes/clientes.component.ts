@@ -364,7 +364,7 @@ export class ClientesComponent implements OnInit {
           this.mostrarModal.set(false);
           this.cargarTerceros();
         },
-        error: (e) => alert('Error al actualizar cliente: ' + (e.error?.error || e.message)),
+        error: (e) => alert('Error al actualizar cliente: ' + (e.error?.message || e.error?.error || e.message)),
       });
     } else {
       this.api.createTercero(this.form).subscribe({
@@ -372,7 +372,7 @@ export class ClientesComponent implements OnInit {
           this.mostrarModal.set(false);
           this.cargarTerceros();
         },
-        error: (e) => alert('Error al registrar cliente: ' + (e.error?.error || e.message)),
+        error: (e) => alert('Error al registrar cliente: ' + (e.error?.message || e.error?.error || e.message)),
       });
     }
   }

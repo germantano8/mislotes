@@ -89,14 +89,14 @@ export class TercerosController {
 
       const nuevoTercero = await prisma.tercero.create({
         data: {
-          nombre,
-          tipoDocumento,
-          numeroDocumento,
+          nombre: String(nombre).trim(),
+          tipoDocumento: tipoDocumento || null,
+          numeroDocumento: numeroDocumento ? String(numeroDocumento).trim() : null,
           tipo: tipo || 'CLIENTE',
-          email,
-          telefono,
-          cbu,
-          direccion,
+          email: email ? String(email).trim() : null,
+          telefono: telefono ? String(telefono).trim() : null,
+          cbu: cbu ? String(cbu).trim() : null,
+          direccion: direccion ? String(direccion).trim() : null,
         },
       });
 
@@ -126,14 +126,14 @@ export class TercerosController {
       const terceroActualizado = await prisma.tercero.update({
         where: { id },
         data: {
-          nombre,
-          tipoDocumento,
-          numeroDocumento,
-          tipo,
-          email,
-          telefono,
-          cbu,
-          direccion,
+          nombre: String(nombre).trim(),
+          tipoDocumento: tipoDocumento || null,
+          numeroDocumento: numeroDocumento ? String(numeroDocumento).trim() : null,
+          tipo: tipo || 'CLIENTE',
+          email: email ? String(email).trim() : null,
+          telefono: telefono ? String(telefono).trim() : null,
+          cbu: cbu ? String(cbu).trim() : null,
+          direccion: direccion ? String(direccion).trim() : null,
         },
       });
 
