@@ -36,6 +36,14 @@ export class AgroApiService {
     return this.http.post<Tercero>(`${this.baseUrl}/terceros`, data);
   }
 
+  updateTercero(id: string, data: Partial<Tercero>): Observable<Tercero> {
+    return this.http.put<Tercero>(`${this.baseUrl}/terceros/${id}`, data);
+  }
+
+  deleteTercero(id: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.baseUrl}/terceros/${id}`);
+  }
+
   // Lotes
   getLotes(regimen?: string): Observable<Lote[]> {
     const params: any = {};
@@ -49,6 +57,10 @@ export class AgroApiService {
 
   createLote(data: any): Observable<Lote> {
     return this.http.post<Lote>(`${this.baseUrl}/lotes`, data);
+  }
+
+  updateLote(id: string, data: any): Observable<Lote> {
+    return this.http.put<Lote>(`${this.baseUrl}/lotes/${id}`, data);
   }
 
   deleteLote(id: string): Observable<{ message: string }> {

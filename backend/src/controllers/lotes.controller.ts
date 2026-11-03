@@ -81,6 +81,7 @@ export class LotesController {
         propietarioId,
         modalidadAlquiler,
         valorAlquiler,
+        observaciones,
       } = req.body;
 
       const nuevoLote = await prisma.lote.create({
@@ -91,6 +92,7 @@ export class LotesController {
           propietarioId: propietarioId ? BigInt(propietarioId) : null,
           modalidadAlquiler: modalidadAlquiler || null,
           valorAlquiler: valorAlquiler ? valorAlquiler : null,
+          observaciones: observaciones || null,
         },
         include: {
           propietario: true,
@@ -116,6 +118,7 @@ export class LotesController {
         propietarioId,
         modalidadAlquiler,
         valorAlquiler,
+        observaciones,
       } = req.body;
 
       const loteActualizado = await prisma.lote.update({
@@ -127,6 +130,7 @@ export class LotesController {
           propietarioId: propietarioId !== undefined ? (propietarioId ? BigInt(propietarioId) : null) : undefined,
           modalidadAlquiler: modalidadAlquiler !== undefined ? modalidadAlquiler : undefined,
           valorAlquiler: valorAlquiler !== undefined ? valorAlquiler : undefined,
+          observaciones: observaciones !== undefined ? (observaciones || null) : undefined,
         },
         include: {
           propietario: true,

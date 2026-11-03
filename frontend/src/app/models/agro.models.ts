@@ -13,6 +13,11 @@ export interface Tercero {
   email?: string;
   direccion?: string;
   cbu?: string;
+  lotes?: Lote[];
+  _count?: {
+    comprobantes: number;
+    movimientosCereal: number;
+  };
 }
 
 export interface Lote {
@@ -23,6 +28,7 @@ export interface Lote {
   propietarioId?: string | null;
   modalidadAlquiler?: 'PORCENTAJE' | 'QUINTALES_FIJOS' | null;
   valorAlquiler?: number | string | null;
+  observaciones?: string | null;
   propietario?: Tercero | null;
   _count?: {
     trabajos: number;

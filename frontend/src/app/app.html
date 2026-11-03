@@ -38,6 +38,13 @@
             📍 Lotes & Arriendos
           </a>
           <a
+            routerLink="/clientes"
+            routerLinkActive="bg-agro-50 text-agro-800 font-bold border-agro-600/40"
+            class="px-3.5 py-2 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all border border-transparent"
+          >
+            👥 Clientes
+          </a>
+          <a
             routerLink="/acopio"
             routerLinkActive="bg-agro-50 text-agro-800 font-bold border-agro-600/40"
             class="px-3.5 py-2 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all border border-transparent"
@@ -88,6 +95,13 @@
           class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100"
         >
           📍 Lotes & Arriendos
+        </a>
+        <a
+          routerLink="/clientes"
+          (click)="menuAbierto = false"
+          class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100"
+        >
+          👥 Clientes
         </a>
         <a
           routerLink="/acopio"
